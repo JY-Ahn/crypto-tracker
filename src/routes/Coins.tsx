@@ -76,7 +76,7 @@ function Coins() {
   return (
     <Container>
       <Header>
-        <Title>코인</Title>
+        <Title>COIN</Title>
       </Header>
       {/* map 함수를 이용해서 coins list 를 다 보여줌  */}
       {loading ? (
@@ -85,7 +85,13 @@ function Coins() {
         <CoinsList>
           {coins.map((coin) => (
             <Coin key={coin.id}>
-              <Link to={`/${coin.id}`}>
+              {/* Link 를 통해 pathname 과 state를 다른 페이지로 전달 */}
+              <Link
+                to={{
+                  pathname: `/${coin.id}`,
+                  state: { name: coin.name },
+                }}
+              >
                 <Img
                   src={`https://coinicons-api.vercel.app/api/icon/${coin.symbol.toLowerCase()}`}
                   alt=""
