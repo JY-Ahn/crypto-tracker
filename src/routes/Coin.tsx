@@ -1,7 +1,18 @@
 import { useState, useEffect } from "react";
-import { useLocation, useParams } from "react-router-dom";
+import {
+  Switch,
+  useLocation,
+  useParams,
+  Route,
+  Link,
+  useRouteMatch,
+} from "react-router-dom";
 import styled from "styled-components";
 import Chart from "./Chart";
+import Price from "./Price";
+// React Router Dom : link
+//  a 태그와 기능이 유사하지만, 페이지 전환을 방지하는 기능이 내장되어 있다
+// 요서 클릭 시 도메인 / 지정 경로로 바로 이동하는 로직 구현 시 용이한 컴포넌트
 
 interface RouteParams {
   coinId: string;
@@ -112,14 +123,41 @@ const OverviewItem = styled.div`
 const Description = styled.p`
   margin: 20px 0px;
 `;
+const Tabs = styled.div`
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  margin: 25px 0px;
+  gap: 10px;
+`;
+// isActive라는 Prop을 가져옴
+const Tab = styled.span<{ $isActive: boolean }>`
+  text-align: center;
+  text-transform: uppercase;
+  font-size: 16px;
+  font-weight: 400;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 7px, 0px;
+  border-radius: 10px;
+  color: ${(props) =>
+    props.$isActive ? props.theme.accentColor : props.theme.textColor};
+  a {
+    display: block;
+  }
+`;
+
 function Coin() {
   //userParams: URL에서 필요한 정보를 잡아낼 수 있는 함수
   // string 타입인 coinId를 가지는 parameter를 userParams()가 반환할 것이라는걸 알려줌
   const { coinId } = useParams<RouteParams>();
-  const [loading, setLoading] = useState(true);
   const { state } = useLocation<RouteState>();
-  const [coinInfo, setInfo] = useState<InfoData>();
+  const [loading, setLoading] = useState(true);
+  const [info, setInfo] = useState<InfoData>();
   const [priceInfo, setPriceInfo] = useState<PriceData>();
+  // useRouteMatch: 특정한 URL에 있는지의 여부를 알려주는 훅(Object)
+  const priceMatch = useRouteMatch("/:coinId/price");
+  const chartMatch = useRouteMatch("/:coinId/chart");
+
+  console.log(priceMatch);
 
   useEffect(() => {
     // 즉시 실행될 함수 ()();
@@ -141,7 +179,10 @@ function Coin() {
   return (
     <Container>
       <Header>
-        <Title>{state?.name || "Loading..."}</Title>
+        <Title>
+          {/* state 유무에 따라(Home 화면에서 넘어왔거나, url만 타고 들어왔거나) title 다르게 보여주기 */}
+          {state?.name ? state.name : loading ? "Loading..." : info?.name}
+        </Title>
       </Header>
       {loading ? (
         <Loader>Loading...</Loader>
@@ -150,18 +191,18 @@ function Coin() {
           <Overview>
             <OverviewItem>
               <span>RANK:</span>
-              <span>{coinInfo?.rank}</span>
+              <span>{info?.rank}</span>
             </OverviewItem>
             <OverviewItem>
               <span>SYMBOL:</span>
-              <span>{coinInfo?.symbol}</span>
+              <span>{info?.symbol}</span>
             </OverviewItem>
             <OverviewItem>
               <span>OPEN SOURCE:</span>
-              <span>{coinInfo?.open_source ? "YES" : "NO"}</span>
+              <span>{info?.open_source ? "YES" : "NO"}</span>
             </OverviewItem>
           </Overview>
-          <Description>{coinInfo?.description}</Description>
+          <Description>{info?.description}</Description>
           <Overview>
             <OverviewItem>
               <span>TOTAL SUPPLY:</span>
@@ -172,6 +213,28 @@ function Coin() {
               <span>{priceInfo?.max_supply}</span>
             </OverviewItem>
           </Overview>
+          <Tabs>
+            <Tab $isActive={chartMatch !== null}>
+              {/* Nested Route 와 Link를 사용했기 때문에 링크를 눌러도 해당부분만 렌더링이 된다 */}
+              <Link to={`/${coinId}/chart`}>Chart</Link>
+            </Tab>
+            <Tab $isActive={priceMatch !== null}>
+              <Link to={`/${coinId}/price`}>Price</Link>
+            </Tab>
+          </Tabs>
+
+          {/* 하니씩 라우팅 */}
+          <Switch>
+            <Route path={`/${coinId}/price`}>
+              <Price></Price>
+            </Route>
+            {/* 
+            <Route path={`/:coinId/chart`}>
+            */}
+            <Route path={`/${coinId}/chart`}>
+              <Chart></Chart>
+            </Route>
+          </Switch>
         </>
       )}
     </Container>
