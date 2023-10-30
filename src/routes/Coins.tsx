@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
 import styled from "styled-components";
 import { useEffect, useState } from "react";
+import { useQuery } from "react-query";
+import { fetchCoins } from "../api";
 
 const Title = styled.h1`
   color: ${(props) => props.theme.accentColor};
@@ -37,7 +39,7 @@ const Coin = styled.li`
   }
 `;
 
-interface CoinInterface {
+interface ICoin {
   id: string;
   name: string;
   symbol: string;
@@ -57,8 +59,10 @@ const Img = styled.img`
 `;
 
 function Coins() {
+  //////////React Query 적용전//////////////////////////////////////////////////////////////////////////
+  /*
   // 1. coins 가 CoinInterface 객체들로 이루어진 배열 이란 것을 알려줌
-  const [coins, setCoins] = useState<CoinInterface[]>([]);
+  const [coins, setCoins] = useState<ICoin[]>([]);
   const [loading, setLoading] = useState(true);
 
   // 2. Data fetch
@@ -73,6 +77,11 @@ function Coins() {
       setLoading(false);
     })();
   }, []); // 시작할때만 실행되도록
+  */
+  /////////////////////////////////////////////////////////////////////////////////////////////////////
+  // isLoading: boolean / fetchCoins가 완료되면 True
+  // data: fetchCoins가 반환하는 json data 저장
+  const { isLoading, data } = useQuery<ICoin[]>("allCoins", fetchCoins);
 
   return (
     <Container>
@@ -80,11 +89,11 @@ function Coins() {
         <Title>COIN</Title>
       </Header>
       {/* map 함수를 이용해서 coins list 를 다 보여줌  */}
-      {loading ? (
+      {isLoading ? (
         <Loader>Loading...</Loader>
       ) : (
         <CoinsList>
-          {coins.map((coin) => (
+          {data?.slice(0, 100).map((coin) => (
             <Coin key={coin.id}>
               {/* Link 를 통해 pathname 과 state를 다른 페이지로 전달 */}
               <Link
