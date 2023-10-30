@@ -10,6 +10,8 @@ import {
 import styled from "styled-components";
 import Chart from "./Chart";
 import Price from "./Price";
+import { fetchCoins, fetchCoinInfo, fetchCoinTickers } from "../api";
+import { useQuery } from "react-query";
 // React Router Dom : link
 //  a 태그와 기능이 유사하지만, 페이지 전환을 방지하는 기능이 내장되어 있다
 // 요서 클릭 시 도메인 / 지정 경로로 바로 이동하는 로직 구현 시 용이한 컴포넌트
@@ -151,14 +153,14 @@ function Coin() {
   // string 타입인 coinId를 가지는 parameter를 userParams()가 반환할 것이라는걸 알려줌
   const { coinId } = useParams<RouteParams>();
   const { state } = useLocation<RouteState>();
-  const [loading, setLoading] = useState(true);
-  const [info, setInfo] = useState<InfoData>();
-  const [priceInfo, setPriceInfo] = useState<PriceData>();
   // useRouteMatch: 특정한 URL에 있는지의 여부를 알려주는 훅(Object)
   const priceMatch = useRouteMatch("/:coinId/price");
   const chartMatch = useRouteMatch("/:coinId/chart");
-
-  console.log(priceMatch);
+  //useQuery를 사용하지 않을때 필요한 코드***************/////
+  /*
+  const [loading, setLoading] = useState(true);
+  const [info, setInfo] = useState<InfoData>();
+  const [priceInfo, setPriceInfo] = useState<PriceData>();
 
   useEffect(() => {
     // 즉시 실행될 함수 ()();
@@ -173,16 +175,32 @@ function Coin() {
       setPriceInfo(priceData);
       setLoading(false); // 해주지 않으면 계속해서 loading 상태에 머문다
     })();
-    // [coinId] : Hook 안에 사용하고 있는 state 를 넣어줘서, 해당 state가 바뀌면 Hook이 실행되도록 해준다
-    // [] : 처음에만 Hook이 실행된다. 여기서 coinId는 변할일이 없기 때문에 []로 하든 [coinId]로 하든 결과는 같음
   }, [coinId]);
+  // [coinId] : Hook 안에 사용하고 있는 state 를 넣어줘서, 해당 state가 바뀌면 Hook이 실행되도록 해준다
+  // [] : 처음에만 Hook이 실행된다. 여기서 coinId는 변할일이 없기 때문에 []로 하든 [coinId]로 하든 결과는 같음
+  */
+  /**useQuery() 사용*************************************/
+  // useQuery로 넘겨주는 key는 같으면 안좋다
+  const { isLoading: infoLoading, data: infoData } = useQuery<InfoData>(
+    ["info", coinId],
+    () => fetchCoinInfo(coinId)
+  );
+  const { isLoading: tickersLoading, data: tickersData } = useQuery<PriceData>(
+    ["tickers", coinId],
+    () => fetchCoinTickers(coinId)
+  );
+  const loading = infoLoading || tickersLoading;
 
   return (
     <Container>
       <Header>
         <Title>
           {/* state 유무에 따라(Home 화면에서 넘어왔거나, url만 타고 들어왔거나) title 다르게 보여주기 */}
-          {state?.name ? state.name : loading ? "Loading..." : info?.name}
+          {state?.name
+            ? state.name
+            : infoLoading
+            ? "Loading..."
+            : infoData?.name}
         </Title>
       </Header>
       {loading ? (
@@ -192,26 +210,26 @@ function Coin() {
           <Overview>
             <OverviewItem>
               <span>RANK:</span>
-              <span>{info?.rank}</span>
+              <span>{infoData?.rank}</span>
             </OverviewItem>
             <OverviewItem>
               <span>SYMBOL:</span>
-              <span>{info?.symbol}</span>
+              <span>{infoData?.symbol}</span>
             </OverviewItem>
             <OverviewItem>
               <span>OPEN SOURCE:</span>
-              <span>{info?.open_source ? "YES" : "NO"}</span>
+              <span>{infoData?.open_source ? "YES" : "NO"}</span>
             </OverviewItem>
           </Overview>
-          <Description>{info?.description}</Description>
+          <Description>{infoData?.description}</Description>
           <Overview>
             <OverviewItem>
               <span>TOTAL SUPPLY:</span>
-              <span>{priceInfo?.total_supply}</span>
+              <span>{tickersData?.total_supply}</span>
             </OverviewItem>
             <OverviewItem>
               <span>MAX SUPPLY:</span>
-              <span>{priceInfo?.max_supply}</span>
+              <span>{tickersData?.max_supply}</span>
             </OverviewItem>
           </Overview>
           <Tabs>

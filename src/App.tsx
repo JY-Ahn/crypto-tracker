@@ -1,5 +1,6 @@
 import Router from "./Router";
 import styled, { createGlobalStyle } from "styled-components";
+import { ReactQueryDevtools } from "react-query/devtools";
 // document 전체에 style을 줌
 const GlobalStyle = createGlobalStyle`
 @import url('https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@300;400&display=swap');
@@ -68,6 +69,7 @@ function App() {
     <>
       <GlobalStyle></GlobalStyle>
       <Router></Router>
+      <ReactQueryDevtools></ReactQueryDevtools>
     </>
   );
 }

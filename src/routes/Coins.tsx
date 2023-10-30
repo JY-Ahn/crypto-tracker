@@ -81,6 +81,8 @@ function Coins() {
   /////////////////////////////////////////////////////////////////////////////////////////////////////
   // isLoading: boolean / fetchCoins가 완료되면 True
   // data: fetchCoins가 반환하는 json data 저장
+  // react query는 데이터를 유지하고 있다 -> Coin 에서 뒤로가기를 해도 loading 없이 화면을 띄워줌 (response 를 caching 한다)
+  // api에 매번 저장하지 않는다
   const { isLoading, data } = useQuery<ICoin[]>("allCoins", fetchCoins);
 
   return (
