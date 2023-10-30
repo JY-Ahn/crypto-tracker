@@ -35,6 +35,7 @@ const Header = styled.div`
 const Title = styled.h1`
   color: ${(props) => props.theme.accentColor};
   font-size: 30px;
+  font-weight: 600;
 `;
 const Loader = styled.span`
   text-align: center;

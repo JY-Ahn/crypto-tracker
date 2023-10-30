@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 const Title = styled.h1`
   color: ${(props) => props.theme.accentColor};
   font-size: 30px;
+  font-weight: 600;
 `;
 const Container = styled.div`
   padding: 0px 20px;
