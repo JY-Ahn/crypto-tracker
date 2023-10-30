@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useLocation, useParams } from "react-router-dom";
 import styled from "styled-components";
+import Chart from "./Chart";
 
 interface RouteParams {
   coinId: string;
@@ -90,7 +91,27 @@ interface PriceData {
     };
   };
 }
-
+const Overview = styled.div`
+  display: flex;
+  justify-content: space-between;
+  background-color: rgba(0, 0, 0, 0.5);
+  padding: 10px 20px;
+  border-radius: 10px;
+`;
+const OverviewItem = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  span: first-child {
+    font-size: 10px;
+    font-weight: 400;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+  }
+`;
+const Description = styled.p`
+  margin: 20px 0px;
+`;
 function Coin() {
   //userParams: URL에서 필요한 정보를 잡아낼 수 있는 함수
   // string 타입인 coinId를 가지는 parameter를 userParams()가 반환할 것이라는걸 알려줌
@@ -111,15 +132,48 @@ function Coin() {
       ).json();
       setInfo(infoData);
       setPriceInfo(priceData);
+      setLoading(false); // 해주지 않으면 계속해서 loading 상태에 머문다
     })();
-  }, []);
+    // [coinId] : Hook 안에 사용하고 있는 state 를 넣어줘서, 해당 state가 바뀌면 Hook이 실행되도록 해준다
+    // [] : 처음에만 Hook이 실행된다. 여기서 coinId는 변할일이 없기 때문에 []로 하든 [coinId]로 하든 결과는 같음
+  }, [coinId]);
 
   return (
     <Container>
       <Header>
         <Title>{state?.name || "Loading..."}</Title>
       </Header>
-      {loading ? <Loader>Loading...</Loader> : null}
+      {loading ? (
+        <Loader>Loading...</Loader>
+      ) : (
+        <>
+          <Overview>
+            <OverviewItem>
+              <span>RANK:</span>
+              <span>{coinInfo?.rank}</span>
+            </OverviewItem>
+            <OverviewItem>
+              <span>SYMBOL:</span>
+              <span>{coinInfo?.symbol}</span>
+            </OverviewItem>
+            <OverviewItem>
+              <span>OPEN SOURCE:</span>
+              <span>{coinInfo?.open_source ? "YES" : "NO"}</span>
+            </OverviewItem>
+          </Overview>
+          <Description>{coinInfo?.description}</Description>
+          <Overview>
+            <OverviewItem>
+              <span>TOTAL SUPPLY:</span>
+              <span>{priceInfo?.total_supply}</span>
+            </OverviewItem>
+            <OverviewItem>
+              <span>MAX SUPPLY:</span>
+              <span>{priceInfo?.max_supply}</span>
+            </OverviewItem>
+          </Overview>
+        </>
+      )}
     </Container>
   );
 }
