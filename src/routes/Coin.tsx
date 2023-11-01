@@ -244,14 +244,14 @@ function Coin() {
 
           {/* 하니씩 라우팅 */}
           <Switch>
-            <Route path={`/${coinId}/price`}>
+            <Route path={"/:coinId/price"}>
               <Price></Price>
             </Route>
             {/* 
             <Route path={`/:coinId/chart`}>
             */}
-            <Route path={`/${coinId}/chart`}>
-              <Chart></Chart>
+            <Route path={"/:coinId/chart"}>
+              <Chart coinId={coinId}></Chart>
             </Route>
           </Switch>
         </>
